@@ -11,7 +11,18 @@ class Program
 
         field.DisplayField();
 
-        Console.ReadKey();
+        while (true)
+        {
+            Console.Write("Type cordinates: ");
+            string input = Console.ReadLine();
+            string[] inputMasssiv = input.Split(" ");
+            int x = int.Parse(inputMasssiv[0]);
+            int y = int.Parse(inputMasssiv[1]);
+            string value = inputMasssiv[2];
+            Console.WriteLine();
+            field.SetValue(x, y, value);
+            field.DisplayField();
+        }
     }
 }
 
@@ -39,7 +50,7 @@ class GameField
             Console.Write("| ");
             for (int col = 0;col < 15; col++)
             {
-                Console.Write(field[row, col] + " " + "|" + " ");
+                Console.Write($"{field[row, col]} | ");
             }
             Console.WriteLine();
             Console.WriteLine(fieldLine);
