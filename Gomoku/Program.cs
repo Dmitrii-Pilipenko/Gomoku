@@ -44,16 +44,17 @@ class GameField
 
     public void DisplayField()
     {
-        Console.WriteLine(fieldLine);
+        Console.WriteLine($"\t{fieldLine}");
         for (int row = 0;row < 15; row++)
         {
+            Console.Write('\t');
             Console.Write("| ");
             for (int col = 0;col < 15; col++)
             {
                 Console.Write($"{field[row, col]} | ");
             }
             Console.WriteLine();
-            Console.WriteLine(fieldLine);
+            Console.WriteLine($"\t{fieldLine}");
         }
     }
 
