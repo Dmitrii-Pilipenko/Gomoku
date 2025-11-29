@@ -12,7 +12,7 @@ class GameField
         {
             for (int col = 0; col < 15; col++)
             {
-                field[row, col] = "O";
+                field[row, col] = ".";
             }
         }
     }
@@ -45,45 +45,95 @@ class GameField
         }
     }
 
-    //public bool CheckWin()
-    //{
-    //    bool flag = false;
-    //    for (int row = 0; row < 10; row++)
-    //    {
-    //        for (int col = 0; col < 15; col++)
-    //        {
-    //            if (field[row, col] == field[row + 1, col] && field[row + 1, col] == field[row + 2, col] && field[row + 3, col] == field[row + 4, col] && field[row + 4, col] == field[row + 5, col])
-    //            {
-    //                flag = true;
-    //                break;
-    //            }
-    //        }
-    //        if (flag)
-    //        {
-    //            break;
-    //        }
-    //    }
+    public bool CheckWin(string value)
+    {
+        if (value == ".")
+        {
+            return false;
+        }
+        for (int row = 0; row < 15; row++) // Горизонтальная проверка
+        {
+            for (int col = 0; col <= 10; col++)
+            {
+                bool flag = true;
+                for (int k = 0; k < 5; k++)
+                {
+                    if (field[row, col + k] != value)
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag)
+                {
+                    return true;
+                }
+            }
+        }
 
-    //    for (int row = 0; row < 15; row++)
-    //    {
-    //        for (int col = 0; col < 10; col++)
-    //        {
-    //            if (field[row, col] == field[row, col + 1] && field[row, col + 1] == field[row, col + 2] && field[row, col + 2] == field[row, col + 3] && field[row, col + 3] == field[row, col + 4] && field[row, col + 4] == field[row, col + 5])
-    //            {
-    //                flag = false;
-    //                break;
-    //            }
-    //        }
-    //        if (flag)
-    //        {
-    //            break;
-    //        }
-    //    }
+        for (int row = 0; row <= 10; row++) // Вертикальная проверка
+        {
+            for (int col = 0; col < 15; col++)
+            {
+                bool flag = true;
+                for (int k = 0; k < 5; k++)
+                {
+                    if (field[row + k, col] != value)
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag)
+                {
+                    return true;
+                }
+            }
+        }
 
 
+        for (int row = 0; row <= 10; row++) // Диагональная (вниз-вправо) проверка
+        {
+            for (int col = 0; col <= 10; col++)
+            {
+                bool flag = true;
+                for (int k = 0; k < 5; k++)
+                {
+                    if (field[row+k, col+k] != value)
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag)
+                {
+                    return true;
+                }
+            }
+        }
 
-    //    return flag;
-    //}
+        for (int row = 4; row < 15; row++) // Диагональная (вверх-вправо) проверка
+        {
+            for (int col = 0; col <= 10; col++)
+            {
+                bool flag = true;
+                for (int k = 0; k < 5; k++)
+                {
+                    if (field[row-k, col+k] != value)
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
 
 class Program
@@ -100,13 +150,22 @@ class Program
             Console.Write("Type cordinates: ");
             string input = Console.ReadLine();
             string[] inputMasssiv = input.Split(" ");
-            int y = int.Parse(inputMasssiv[0]);
-            int x = int.Parse(inputMasssiv[1]);
+            int row = int.Parse(inputMasssiv[0]);
+            int col = int.Parse(inputMasssiv[1]);
             string value = inputMasssiv[2];
+            field.SetValue(row, col, value);
             Console.Clear();
-            Console.Write("\x1b[3J"); // баг NET8
-            field.SetValue(x, y, value);
+            Console.Write("\x1b[3J");
             field.DisplayField();
+            if (field.CheckWin(value))
+            {
+                Console.Clear();
+                Console.Write("\x1b[3J"); // баг NET8
+                field.DisplayField();
+                Console.WriteLine($"Win player: {value}!");
+                break;
+            }
+            
         }
 
     }
