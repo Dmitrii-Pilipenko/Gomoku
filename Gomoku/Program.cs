@@ -12,7 +12,7 @@ class GameField
         {
             for (int col = 0; col < 15; col++)
             {
-                field[row, col] = ".";
+                field[row, col] = " ";
             }
         }
     }
@@ -37,7 +37,14 @@ class GameField
     {
         if (row >= 0 && row < 15 && col >= 0 && col < 15)
         {
-            field[row, col] = value;
+            if (field[row, col] == " ")
+            {
+                field[row, col] = value;
+            }
+            else
+            {
+                Console.WriteLine("No");
+            }
         }
         else
         {
@@ -47,7 +54,7 @@ class GameField
 
     public bool CheckWin(string value)
     {
-        if (value == ".")
+        if (value == " ")
         {
             return false;
         }
@@ -136,10 +143,42 @@ class GameField
     }
 }
 
+class Player
+{
+    private string _name;
+    private int _score = 0;
+    
+    public Player(string name)
+    {
+        _name = name;
+    }
+
+    public int GetScore()
+    {
+        return _score;
+    }
+
+    public void SetScore(int score)
+    {
+        _score = score;
+    }
+
+    public void Name(string name)
+    {
+        _name = name;
+    }
+
+    public string GetName()
+    {
+        return _name;
+    }
+}
+
 class Program
 {
     public static void Main(string[] args)
     {
+
         GameField field = new GameField();
         field.InitializeField();
 
@@ -148,20 +187,28 @@ class Program
         while (true)
         {
             Console.Write("Type cordinates: ");
+            
             string input = Console.ReadLine();
             string[] inputMasssiv = input.Split(" ");
+            
             int row = int.Parse(inputMasssiv[0]);
             int col = int.Parse(inputMasssiv[1]);
             string value = inputMasssiv[2];
+            
             field.SetValue(row, col, value);
+
             Console.Clear();
-            Console.Write("\x1b[3J");
+            Console.Write("\x1b[3J"); // баг NET8
+
             field.DisplayField();
+            
             if (field.CheckWin(value))
             {
                 Console.Clear();
                 Console.Write("\x1b[3J"); // баг NET8
+                
                 field.DisplayField();
+                
                 Console.WriteLine($"Win player: {value}!");
                 break;
             }
