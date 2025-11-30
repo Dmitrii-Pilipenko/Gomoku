@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection.PortableExecutable;
+using System.Text;
 
 class GameField
 {
@@ -178,6 +179,7 @@ class Program
 {
     public static void Main(string[] args)
     {
+        Console.OutputEncoding = Encoding.UTF8;
 
         GameField field = new GameField();
         field.InitializeField();
@@ -186,7 +188,7 @@ class Program
 
         while (true)
         {
-            Console.Write("Type cordinates: ");
+            Console.Write("Введи координаты: ");
             
             string input = Console.ReadLine();
             string[] inputMasssiv = input.Split(" ");
