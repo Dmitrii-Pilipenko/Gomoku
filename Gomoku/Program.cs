@@ -20,9 +20,26 @@ class GameField
 
     public void DisplayField() // вывод игрового поля в консоль
     {
+        int intRow = 1;
+        int intCol = 1;
+        Console.Write('\t' + "  ");
+        for (int i = 0; i < 15; i++)
+        {
+            if(intRow < 10)
+            {
+                Console.Write(intRow++ + "   ");
+            }
+            else
+            {
+                Console.Write(intRow++ + "  ");
+            }
+        }
+        Console.WriteLine();
         Console.WriteLine($"\t{fieldLine}");
         for (int row = 0; row < 15; row++)
         {
+            
+            Console.Write(intCol++);
             Console.Write('\t');
             Console.Write("| ");
             for (int col = 0; col < 15; col++)
@@ -36,16 +53,9 @@ class GameField
 
     public void SetValue(int row, int col, string value) // Изменяем определенную ячейку в поле по координатам
     {
-        if (row >= 0 && row < 15 && col >= 0 && col < 15)
+        if (row - 1 >= 0 && row - 1 < 15 && col - 1 >= 0 && col - 1 < 15)
         {
-            if (field[row, col] == " ")
-            {
-                field[row, col] = value;
-            }
-            else
-            {
-                Console.WriteLine("No");
-            }
+            field[row - 1, col - 1] = value;
         }
         else
         {
@@ -53,7 +63,19 @@ class GameField
         }
     }
 
-    public bool CheckNullCell()
+    public bool CheckValue(int row, int col) // Возвращает true если ячейка не пустая
+    {
+        if (field[row - 1, col - 1] != " ")
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public bool CheckNullCell() // Возвращает true если все поле заполнено
     {
         bool result = false;
         for (int row = 0; row < 15; row++)
@@ -169,7 +191,6 @@ class Player
     
     public Player(string name, int queue)
     {
-        Console.OutputEncoding = Encoding.UTF8;
         _name = name;
         _queue = queue;
     }
@@ -200,7 +221,6 @@ class Player
 
     public void Name(string name)
     {
-        Console.OutputEncoding = Encoding.UTF8;
         _name = name;
     }
 
@@ -215,6 +235,7 @@ class Program
     public static void Main(string[] args)
     {
         Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
         do
         {
             bool StartChecker = false;
@@ -245,12 +266,16 @@ class Program
                     }
                     else
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Вы ввели неверное число!");
+                        Console.ResetColor();
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Вы ввели неверное число!");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Вы ввели не число!");
+                    Console.ResetColor();
                 }
             } while (StartChecker != true);
 
@@ -298,7 +323,7 @@ class Program
                     do
                     {
                         Console.WriteLine("0: Выйти в меню");
-                        Console.Write($"{player1.GetName()} введи координаты (Первое число - строка, второе - столбец): ");
+                        Console.Write($"{player1.GetName()} введи координаты (Первое число - строка, второе  - столбец): ");
 
                         string input = Console.ReadLine();
                         string[] inputMasssiv = input.Split(" ");
@@ -311,12 +336,33 @@ class Program
                         {
                             int row = int.Parse(inputMasssiv[0]);
                             int col = int.Parse(inputMasssiv[1]);
-                            checkMassiv = true;
-                            field.SetValue(row, col, player1.GetFigure());
+                            if (row >= 1 && row <= 15 && col >= 1 && col <= 15)
+                            {
+                                if(field.CheckValue(row, col)  == false)
+                                {
+                                    checkMassiv = true;
+                                    field.SetValue(row, col, player1.GetFigure());
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    Console.WriteLine("Эта клетка уже занята!");
+                                    Console.ResetColor();
+                                }
+                                
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Вы ввели неверный диапазон!");
+                                Console.ResetColor();
+                            }
                         }
                         else
                         {
+                            Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("Вы ввели неправильно!");
+                            Console.ResetColor();
                         }
                     } while (checkMassiv != true);
 
@@ -324,6 +370,31 @@ class Program
                     {
                         Console.Clear();
                         Console.Write("\x1b[3J"); // баг NET8
+                        break;
+                    }
+                    if (field.CheckWin(player1.GetFigure()))
+                    {
+                        Console.Clear();
+                        Console.Write("\x1b[3J"); // баг NET8
+
+                        field.DisplayField();
+
+                        Console.WriteLine($"Победил игрок: {player1.GetName()}!");
+                        Console.WriteLine("0 : Вернуться в главное меню");
+                        bool checkExit2 = false;
+                        do
+                        {
+                            string input = Console.ReadLine();
+                            if (int.TryParse(input, out int exit))
+                            {
+                                if (exit == 0)
+                                {
+                                    checkExit2 = true;
+                                    Console.Clear();
+                                    Console.Write("\x1b[3J"); // баг NET8
+                                }
+                            }
+                        } while (checkExit2 != true);
                         break;
                     }
 
@@ -339,25 +410,46 @@ class Program
                     do
                     {
                         Console.WriteLine("0: Выйти в меню");
-                        Console.Write($"{player2.GetName()} введи координаты (Первое число - строка, второе - столбец): ");
+                        Console.Write($"{player2.GetName()} введи координаты (Первое число - строка, второе  - столбец): ");
 
                         string input = Console.ReadLine();
-                        string[] inputMasssiv = input.Split(" ");
+                        string[] inputMasssiv1 = input.Split(" ");
                         if (input == "0")
                         {
                             checkExit1 = true;
                             break;
                         }
-                        if (inputMasssiv.Length == 2)
+                        if (inputMasssiv1.Length == 2)
                         {
-                            int row = int.Parse(inputMasssiv[0]);
-                            int col = int.Parse(inputMasssiv[1]);
-                            checkMassiv1 = true;
-                            field.SetValue(row, col, player2.GetFigure());
+                            int row = int.Parse(inputMasssiv1[0]);
+                            int col = int.Parse(inputMasssiv1[1]);
+                            if (row >= 1 && row <= 15 && col >= 1 && col <= 15)
+                            {
+                                if (field.CheckValue(row, col) == false)
+                                {
+                                    checkMassiv1 = true;
+                                    field.SetValue(row, col, player2.GetFigure());
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    Console.WriteLine("Эта клетка уже занята!");
+                                    Console.ResetColor();
+                                }
+                                
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Вы ввели неверный диапазон!");
+                                Console.ResetColor();
+                            }
                         }
                         else
                         {
+                            Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("Вы ввели неправильно!");
+                            Console.ResetColor();
                         }
                     } while (checkMassiv1 != true);
 
@@ -373,19 +465,7 @@ class Program
 
                     field.DisplayField();
 
-                    Console.Clear();
-                    Console.Write("\x1b[3J"); // баг NET8
-
-                    if (field.CheckWin(player1.GetFigure()))
-                    {
-                        Console.Clear();
-                        Console.Write("\x1b[3J"); // баг NET8
-
-                        field.DisplayField();
-
-                        Console.WriteLine($"Победил игрок: {player1.GetName()}!");
-                        break;
-                    }
+                    
 
                     if (field.CheckWin(player2.GetFigure()))
                     {
@@ -395,6 +475,21 @@ class Program
                         field.DisplayField();
 
                         Console.WriteLine($"Победил игрок: {player2.GetName()}!");
+                        Console.WriteLine("0 : Вернуться в главное меню");
+                        bool checkExit2 = false;
+                        do
+                        {
+                            string input = Console.ReadLine();
+                            if (int.TryParse(input, out int exit))
+                            {
+                                if (exit == 0)
+                                {
+                                    checkExit2 = true;
+                                    Console.Clear();
+                                    Console.Write("\x1b[3J"); // баг NET8
+                                }
+                            }
+                        } while (checkExit2 != true);
                         break;
                     }
                 }
@@ -402,7 +497,6 @@ class Program
                 {
                     player2.SetFigure("X");
                     player1.SetFigure("O");
-                    Console.WriteLine("0: Выйти в меню");
                     bool checkExit = false;
 
                     bool checkMassiv = false;
@@ -423,12 +517,34 @@ class Program
                         {
                             int row = int.Parse(inputMasssiv[0]);
                             int col = int.Parse(inputMasssiv[1]);
-                            checkMassiv = true;
-                            field.SetValue(row, col, player2.GetFigure());
+                            if (row >= 1 && row <= 15 && col >= 1 && col <= 15)
+                            {
+                                if (field.CheckValue(row, col) == false)
+                                {
+                                    checkMassiv = true;
+                                    field.SetValue(row, col, player2.GetFigure());
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    Console.WriteLine("Эта клетка уже занята!");
+                                    Console.ResetColor();
+                                }
+                                
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Вы ввели неверный диапазон!");
+                                Console.ResetColor();
+                            }
+                           
                         }
                         else
                         {
+                            Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("Вы ввели неправильно!");
+                            Console.ResetColor();
                         }
                     } while (checkMassiv != true);
 
@@ -439,7 +555,32 @@ class Program
                         break;
                     }
 
-                    Console.Clear();
+                    if (field.CheckWin(player2.GetFigure()))
+                    {
+                        Console.Clear();
+                        Console.Write("\x1b[3J"); // баг NET8
+
+                        field.DisplayField();
+
+                        Console.WriteLine($"Победил игрок: {player2.GetName()}!");
+                        Console.WriteLine("0 : Вернуться в главное меню");
+                        bool checkExit2 = false;
+                        do
+                        {
+                            string input = Console.ReadLine();
+                            if (int.TryParse(input, out int exit))
+                            {
+                                if (exit == 0)
+                                {
+                                    checkExit2 = true;
+                                    Console.Clear();
+                                    Console.Write("\x1b[3J"); // баг NET8
+                                }
+                            }
+                        } while (checkExit2 != true);
+                        break;
+                    }
+                        Console.Clear();
                     Console.Write("\x1b[3J"); // баг NET8
 
                     field.DisplayField();
@@ -464,12 +605,34 @@ class Program
                         {
                             int row = int.Parse(inputMasssiv[0]);
                             int col = int.Parse(inputMasssiv[1]);
-                            checkMassiv1 = true;
-                            field.SetValue(row, col, player1.GetFigure());
+                            if (row >= 1 && row <= 15 && col >= 1 && col <= 15)
+                            {
+                                if (field.CheckValue(row, col) == false)
+                                {
+                                    checkMassiv1 = true;
+                                    field.SetValue(row, col, player1.GetFigure());
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    Console.WriteLine("Эта клетка уже занята!");
+                                    Console.ResetColor();
+                                }
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Вы ввели неверный диапазон!");
+                                Console.ResetColor();
+                            }
+                            
+                            
                         }
                         else
                         {
+                            Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("Вы ввели неправильно!");
+                            Console.ResetColor();
                         }
                     } while (checkMassiv1 != true);
 
@@ -493,51 +656,27 @@ class Program
                         field.DisplayField();
 
                         Console.WriteLine($"Победил игрок: {player1.GetName()}!");
+                        Console.WriteLine("0 : Вернуться в главное меню");
+
+                        bool checkExit2 = false;
+                        do
+                        {
+                            string input = Console.ReadLine();
+                            if(int.TryParse(input, out int exit))
+                            {
+                                if(exit == 0)
+                                {
+                                    checkExit2 = true;
+                                    Console.Clear();
+                                    Console.Write("\x1b[3J"); // баг NET8
+                                }
+                            }
+                        } while (checkExit2 != true);
                         break;
                     }
 
-                    if (field.CheckWin(player2.GetFigure()))
-                    {
-                        Console.Clear();
-                        Console.Write("\x1b[3J"); // баг NET8
+                    
 
-                        field.DisplayField();
-
-                        Console.WriteLine($"Победил игрок: {player1.GetName()}!");
-                        break;
-                    }
-
-
-                    Console.Clear();
-                    Console.Write("\x1b[3J"); // баг NET8
-
-                    field.DisplayField();
-
-
-                    Console.Clear();
-                    Console.Write("\x1b[3J"); // баг NET8
-                    if (field.CheckWin(player2.GetFigure()))
-                    {
-                        Console.Clear();
-                        Console.Write("\x1b[3J"); // баг NET8
-
-                        field.DisplayField();
-
-                        Console.WriteLine($"Победил игрок: {player2.GetName()}!");
-                        break;
-                    }
-
-
-                    if (field.CheckWin(player2.GetFigure()))
-                    {
-                        Console.Clear();
-                        Console.Write("\x1b[3J"); // баг NET8
-
-                        field.DisplayField();
-
-                        Console.WriteLine($"Победил игрок: {player2.GetName()}!");
-                        break;
-                    }
                 }
                 
             }
