@@ -24,13 +24,13 @@ class LeaderBoard
         }
     }
 
-    public void Save()
+    public void Save() // метод сохраняет таблицу
     {
         var lines = _scores.Select(kvp => $"{kvp.Key};{kvp.Value}");
         File.WriteAllLines(FileName, lines);
     }
 
-    public void AddWin(string playerName)
+    public void AddWin(string playerName) // метод добавляет к имени +1 победу
     {
         if (string.IsNullOrWhiteSpace(playerName))
         {
@@ -44,7 +44,7 @@ class LeaderBoard
         _scores[playerName]++;
     }
 
-    public void Print()
+    public void Print() // метод выводит таблицу лидеров
     {
         Console.WriteLine("======Таблица лидеров=====");
         if (_scores.Count == 0)
