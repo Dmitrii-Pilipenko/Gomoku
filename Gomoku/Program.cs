@@ -2,7 +2,65 @@
 using System.Reflection.PortableExecutable;
 using System.Text;
 
-class GameField
+
+class LeaderBoard
+{
+    private Dictionary<string, int> _scores = new Dictionary<string, int>();
+    private const string FileName = "leaderboard.txt";
+
+    public void Load()
+    {
+        if (!File.Exists(FileName)) // если файла нет то мы выходим
+        {
+            return;
+        }
+        foreach(var line in File.ReadAllLines(FileName)) // чтение файла построчно
+        {
+            var parts = line.Split(";");
+            if (parts.Length == 2 && int.TryParse(parts[1], out int score))
+            {
+                _scores[parts[0]] = score;
+            }
+        }
+    }
+
+    public void Save()
+    {
+        var lines = _scores.Select(kvp => $"{kvp.Key};{kvp.Value}");
+        File.WriteAllLines(FileName, lines);
+    }
+
+    public void AddWin(string playerName)
+    {
+        if (string.IsNullOrWhiteSpace(playerName))
+        {
+            return;
+        }
+        if (!_scores.ContainsKey(playerName))
+        {
+            _scores[playerName] = 0;
+        }
+
+        _scores[playerName]++;
+    }
+
+    public void Print()
+    {
+        Console.WriteLine("======Таблица лидеров=====");
+        if (_scores.Count == 0)
+        {
+            Console.WriteLine("Победителей нет");
+            return;
+        }
+
+        foreach(var kvp in _scores.OrderByDescending(k => k.Value))
+        {
+            Console.WriteLine($"{kvp.Key} - {kvp.Value}");
+        }
+    }
+}
+
+class GameField // класс для игрового поля
 {
     private string[,] field = new string[15, 15];
     private string fieldLine = new string('—', 61);
@@ -91,7 +149,7 @@ class GameField
         return result;
     }
 
-    public bool CheckWin(string value)
+    public bool CheckWin(string value) // возвращает true если 5 одинаковых симовола в ряду
     {
         if (value == " ")
         {
@@ -182,12 +240,11 @@ class GameField
     }
 }
 
-class Player
+class Player // класс игрока
 {
     private string _name;
     private int _queue;
     private string _figure;
-    private int _score = 0;
     
     public Player(string name, int queue)
     {
@@ -195,36 +252,27 @@ class Player
         _queue = queue;
     }
 
-    public int GetQueue()
+    public int GetQueue() // возвращает место в очереди
     {
         return _queue;
     }
 
-    public void SetFigure(string figure)
+    public void SetFigure(string figure) // устнавливает значение
     {
         _figure = figure;
     }
 
-    public string GetFigure()
+    public string GetFigure() // возвращает символ
     {
         return _figure;
     }
-    public int GetScore()
-    {
-        return _score;
-    }
 
-    public void SetScore(int score)
-    {
-        _score = score;
-    }
-
-    public void Name(string name)
+    public void Name(string name) // меняет имя игрока
     {
         _name = name;
     }
 
-    public string GetName()
+    public string GetName() // Возвращает имя игрока
     {
         return _name;
     }
@@ -236,31 +284,37 @@ class Program
     {
         Console.OutputEncoding = Encoding.UTF8;
         Console.InputEncoding = Encoding.UTF8;
-        do
+
+        LeaderBoard leaderboard = new LeaderBoard();
+        leaderboard.Load();
+        do // глобальный цикл для всей игры, чтобы при окончании игры выводилось меню
         {
             bool StartChecker = false;
 
-            do
+            do // цикл для начала игры
             {
                 Console.WriteLine("1: Начать игру");
                 Console.WriteLine("2: Правила игры");
+                Console.WriteLine("3: Таблица лидеров");
                 Console.WriteLine("0: Выйти из игры");
                 Console.Write("Введите число: ");
                 string input = Console.ReadLine();
-                if (int.TryParse(input, out int number))
+                if (int.TryParse(input, out int number)) // проверка числа на цилочисленное
                 {
-                    if (number >= 0 && number <= 2)
+                    if (number >= 0 && number <= 3)
                     {
-                        switch (number)
+                        switch (number) // правила игры
                         {
                             case 1: StartChecker = true; break;
                             case 2:
+                                Console.Clear(); Console.Write("\x1b[3J");
                                 Console.WriteLine("Игра ведётся на квадратном поле («доске»), расчерченном вертикальными и горизонтальными линиями. Пересечения линий называются «пунктами». Наиболее распространённым является поле размером 15×15 линий.");
                                 Console.WriteLine("Играют две стороны — «чёрные» и «белые». Каждая сторона использует фишки («камни») своего цвета.");
                                 Console.WriteLine("Каждым ходом игрок выставляет камень своего цвета в один из свободных пунктов доски. Первый ход делают чёрные в центральный пункт доски. Далее ходы делаются по очереди.");
                                 Console.WriteLine("Цель игры — первым построить камнями своего цвета непрерывный ряд из пяти камней в горизонтальном, вертикальном или диагональном направлении.");
                                 Console.WriteLine("Если доска заполнена и ни один из игроков не построил ряд из пяти камней, может быть объявлена ничья.");
                                 break;
+                            case 3: Console.Clear(); Console.Write("\x1b[3J"); leaderboard.Print(); Console.WriteLine(); break;
                             case 0: Environment.Exit(0); break;
                         }
                     }
@@ -298,21 +352,21 @@ class Program
             Console.Write("\x1b[3J"); // баг NET8
 
             Random random = new Random();
-            int randomNumber = random.Next(1, 3);
+            int randomNumber = random.Next(1, 3); // рандом для рандомного первого хода
 
             GameField field = new GameField();
             field.InitializeField();
 
             field.DisplayField();
 
-            while (true)
+            while (true) // цикл для самой игры
             {
                 if (field.CheckNullCell() == false)
                 {
                     Console.WriteLine("Ничья!");
                     break;
                 }
-                if (player1.GetQueue() == randomNumber)
+                if (player1.GetQueue() == randomNumber) // проверка ходит ли игрок первым
                 {
                     player1.SetFigure("X");
                     player2.SetFigure("O");
@@ -320,7 +374,7 @@ class Program
 
                     bool checkMassiv = false;
 
-                    do
+                    do // цикл чтобы игрок точно написал все правильно
                     {
                         Console.WriteLine("0: Выйти в меню");
                         Console.Write($"{player1.GetName()} введи координаты (Первое число - строка, второе  - столбец): ");
@@ -379,10 +433,13 @@ class Program
 
                         field.DisplayField();
 
+                        leaderboard.AddWin(player1.GetName());
+                        leaderboard.Save();
+
                         Console.WriteLine($"Победил игрок: {player1.GetName()}!");
                         Console.WriteLine("0 : Вернуться в главное меню");
                         bool checkExit2 = false;
-                        do
+                        do // чтобы игрок точно нажал 0
                         {
                             string input = Console.ReadLine();
                             if (int.TryParse(input, out int exit))
@@ -407,7 +464,7 @@ class Program
 
                     bool checkMassiv1 = false;
 
-                    do
+                    do // ход второго игрока
                     {
                         Console.WriteLine("0: Выйти в меню");
                         Console.Write($"{player2.GetName()} введи координаты (Первое число - строка, второе  - столбец): ");
@@ -473,6 +530,9 @@ class Program
                         Console.Write("\x1b[3J"); // баг NET8
 
                         field.DisplayField();
+
+                        leaderboard.AddWin(player2.GetName());
+                        leaderboard.Save();
 
                         Console.WriteLine($"Победил игрок: {player2.GetName()}!");
                         Console.WriteLine("0 : Вернуться в главное меню");
@@ -561,6 +621,9 @@ class Program
                         Console.Write("\x1b[3J"); // баг NET8
 
                         field.DisplayField();
+
+                        leaderboard.AddWin(player2.GetName());
+                        leaderboard.Save();
 
                         Console.WriteLine($"Победил игрок: {player2.GetName()}!");
                         Console.WriteLine("0 : Вернуться в главное меню");
@@ -654,6 +717,9 @@ class Program
                         Console.Write("\x1b[3J"); // баг NET8
 
                         field.DisplayField();
+
+                        leaderboard.AddWin(player1.GetName());
+                        leaderboard.Save();
 
                         Console.WriteLine($"Победил игрок: {player1.GetName()}!");
                         Console.WriteLine("0 : Вернуться в главное меню");
