@@ -377,7 +377,7 @@ class Program
                     do // цикл чтобы игрок точно написал все правильно
                     {
                         Console.WriteLine("0: Выйти в меню");
-                        Console.Write($"{player1.GetName()} введи координаты (Первое число - строка, второе  - столбец): ");
+                        Console.Write($"{player1.GetName()} введи координаты (Первое число - столбец, второе  - строка): ");
 
                         string input = Console.ReadLine();
                         string[] inputMasssiv = input.Split(" ");
@@ -388,8 +388,8 @@ class Program
                         }
                         if (inputMasssiv.Length == 2)
                         {
-                            int row = int.Parse(inputMasssiv[0]);
-                            int col = int.Parse(inputMasssiv[1]);
+                            int col = int.Parse(inputMasssiv[0]);
+                            int row = int.Parse(inputMasssiv[1]);
                             if (row >= 1 && row <= 15 && col >= 1 && col <= 15)
                             {
                                 if(field.CheckValue(row, col)  == false)
@@ -467,7 +467,7 @@ class Program
                     do // ход второго игрока
                     {
                         Console.WriteLine("0: Выйти в меню");
-                        Console.Write($"{player2.GetName()} введи координаты (Первое число - строка, второе  - столбец): ");
+                        Console.Write($"{player2.GetName()} введи координаты (Первое число - столбец, второе  - строка): ");
 
                         string input = Console.ReadLine();
                         string[] inputMasssiv1 = input.Split(" ");
@@ -478,8 +478,8 @@ class Program
                         }
                         if (inputMasssiv1.Length == 2)
                         {
-                            int row = int.Parse(inputMasssiv1[0]);
-                            int col = int.Parse(inputMasssiv1[1]);
+                            int col = int.Parse(inputMasssiv1[0]);
+                            int row = int.Parse(inputMasssiv1[1]);
                             if (row >= 1 && row <= 15 && col >= 1 && col <= 15)
                             {
                                 if (field.CheckValue(row, col) == false)
@@ -564,7 +564,7 @@ class Program
                     do
                     {
                         Console.WriteLine("0: Выйти в меню");
-                        Console.Write($"{player2.GetName()} введи координаты (Первое число - строка, второе - столбец): ");
+                        Console.Write($"{player2.GetName()} введи координаты (Первое число - столбец, второе - строка): ");
 
                         string input = Console.ReadLine();
                         string[] inputMasssiv = input.Split(" ");
@@ -575,8 +575,8 @@ class Program
                         }
                         if (inputMasssiv.Length == 2)
                         {
-                            int row = int.Parse(inputMasssiv[0]);
-                            int col = int.Parse(inputMasssiv[1]);
+                            int col = int.Parse(inputMasssiv[0]);
+                            int row = int.Parse(inputMasssiv[1]);
                             if (row >= 1 && row <= 15 && col >= 1 && col <= 15)
                             {
                                 if (field.CheckValue(row, col) == false)
@@ -655,7 +655,7 @@ class Program
                     do
                     {
                         Console.WriteLine("0: Выйти в меню");
-                        Console.Write($"{player1.GetName()} введи координаты (Первое число - строка, второе - столбец): ");
+                        Console.Write($"{player1.GetName()} введи координаты (Первое число - столбец, второе - строка): ");
 
                         string input = Console.ReadLine();
                         string[] inputMasssiv = input.Split(" ");
@@ -666,8 +666,8 @@ class Program
                         }
                         if (inputMasssiv.Length == 2)
                         {
-                            int row = int.Parse(inputMasssiv[0]);
-                            int col = int.Parse(inputMasssiv[1]);
+                            int col = int.Parse(inputMasssiv[0]);
+                            int row = int.Parse(inputMasssiv[1]);
                             if (row >= 1 && row <= 15 && col >= 1 && col <= 15)
                             {
                                 if (field.CheckValue(row, col) == false)
