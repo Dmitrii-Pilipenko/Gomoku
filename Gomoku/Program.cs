@@ -14,7 +14,7 @@ class LeaderBoard
         {
             return;
         }
-        foreach(var line in File.ReadAllLines(FileName)) // чтение файла построчно
+        foreach (var line in File.ReadAllLines(FileName)) // чтение файла построчно
         {
             var parts = line.Split(";");
             if (parts.Length == 2 && int.TryParse(parts[1], out int score))
@@ -53,7 +53,7 @@ class LeaderBoard
             return;
         }
 
-        foreach(var kvp in _scores.OrderByDescending(k => k.Value))
+        foreach (var kvp in _scores.OrderByDescending(k => k.Value))
         {
             Console.WriteLine($"{kvp.Key} - {kvp.Value}");
         }
@@ -83,7 +83,7 @@ class GameField // класс для игрового поля
         Console.Write('\t' + "  ");
         for (int i = 0; i < 15; i++)
         {
-            if(intRow < 10)
+            if (intRow < 10)
             {
                 Console.Write(intRow++ + "   ");
             }
@@ -96,7 +96,7 @@ class GameField // класс для игрового поля
         Console.WriteLine($"\t{fieldLine}");
         for (int row = 0; row < 15; row++)
         {
-            
+
             Console.Write(intCol++);
             Console.Write('\t');
             Console.Write("| ");
@@ -203,7 +203,7 @@ class GameField // класс для игрового поля
                 bool flag = true;
                 for (int k = 0; k < 5; k++)
                 {
-                    if (field[row+k, col+k] != value)
+                    if (field[row + k, col + k] != value)
                     {
                         flag = false;
                         break;
@@ -223,7 +223,7 @@ class GameField // класс для игрового поля
                 bool flag = true;
                 for (int k = 0; k < 5; k++)
                 {
-                    if (field[row-k, col+k] != value)
+                    if (field[row - k, col + k] != value)
                     {
                         flag = false;
                         break;
@@ -244,8 +244,8 @@ class Player // класс игрока
 {
     private string _name;
     private int _queue;
-    private string _figure;
-    
+    private string? _figure;
+
     public Player(string name, int queue)
     {
         _name = name;
@@ -264,7 +264,7 @@ class Player // класс игрока
 
     public string GetFigure() // возвращает символ
     {
-        return _figure;
+        return (_figure ?? "");
     }
 
     public void Name(string name) // меняет имя игрока
@@ -298,7 +298,7 @@ class Program
                 Console.WriteLine("3: Таблица лидеров");
                 Console.WriteLine("0: Выйти из игры");
                 Console.Write("Введите число: ");
-                string input = Console.ReadLine();
+                string? input = Console.ReadLine();
                 if (int.TryParse(input, out int number)) // проверка числа на цилочисленное
                 {
                     if (number >= 0 && number <= 3)
@@ -308,10 +308,10 @@ class Program
                             case 1: StartChecker = true; break;
                             case 2:
                                 Console.Clear(); Console.Write("\x1b[3J");
-                                Console.WriteLine("Игра ведётся на квадратном поле («доске»), расчерченном вертикальными и горизонтальными линиями. Пересечения линий называются «пунктами». Наиболее распространённым является поле размером 15×15 линий.");
-                                Console.WriteLine("Играют две стороны — «чёрные» и «белые». Каждая сторона использует фишки («камни») своего цвета.");
-                                Console.WriteLine("Каждым ходом игрок выставляет камень своего цвета в один из свободных пунктов доски. Первый ход делают чёрные в центральный пункт доски. Далее ходы делаются по очереди.");
-                                Console.WriteLine("Цель игры — первым построить камнями своего цвета непрерывный ряд из пяти камней в горизонтальном, вертикальном или диагональном направлении.");
+                                Console.WriteLine("Игра ведётся на квадратном поле, расчерченном линиями. Пересечения линий называются «пунктами».");
+                                Console.WriteLine("Играют две стороны. Каждая сторона использует фишки своего типа.");
+                                Console.WriteLine("Каждым ходом игрок выставляет фишку своего типа в свободный пункт. Первый ход делает рандомный игрок. Далее ходы делаются по очереди.");
+                                Console.WriteLine("Цель — первым построить непрерывный ряд из пяти фишек своего типа в любом направлении.");
                                 Console.WriteLine("Если доска заполнена и ни один из игроков не построил ряд из пяти камней, может быть объявлена ничья.");
                                 break;
                             case 3: Console.Clear(); Console.Write("\x1b[3J"); leaderboard.Print(); Console.WriteLine(); break;
@@ -338,15 +338,15 @@ class Program
 
 
             Console.Write("Введите имя первого игрока: ");
-            string playerName1 = Console.ReadLine();
-            Player player1 = new Player(playerName1, 1);
+            string? playerName1 = Console.ReadLine();
+            Player player1 = new Player((playerName1 ?? ""), 1);
 
             Console.Clear();
             Console.Write("\x1b[3J"); // баг NET8
 
             Console.Write("Введите имя второго игрока: ");
-            string playerName2 = Console.ReadLine();
-            Player player2 = new Player(playerName2, 2);
+            string? playerName2 = Console.ReadLine();
+            Player player2 = new Player((playerName2 ?? ""), 2);
 
             Console.Clear();
             Console.Write("\x1b[3J"); // баг NET8
@@ -377,10 +377,10 @@ class Program
                     do // цикл чтобы игрок точно написал все правильно
                     {
                         Console.WriteLine("0: Выйти в меню");
-                        Console.Write($"{player1.GetName()} введи координаты (Первое число - строка, второе  - столбец): ");
+                        Console.Write($"{player1.GetName()} введи координаты (Первое число - столбец, второе  - строка): ");
 
-                        string input = Console.ReadLine();
-                        string[] inputMasssiv = input.Split(" ");
+                        string? input = Console.ReadLine();
+                        string[] inputMasssiv = (input ?? "").Split(" ");
                         if (input == "0")
                         {
                             checkExit = true;
@@ -388,11 +388,11 @@ class Program
                         }
                         if (inputMasssiv.Length == 2)
                         {
-                            int row = int.Parse(inputMasssiv[0]);
-                            int col = int.Parse(inputMasssiv[1]);
+                            int col = int.Parse(inputMasssiv[0]);
+                            int row = int.Parse(inputMasssiv[1]);
                             if (row >= 1 && row <= 15 && col >= 1 && col <= 15)
                             {
-                                if(field.CheckValue(row, col)  == false)
+                                if (field.CheckValue(row, col) == false)
                                 {
                                     checkMassiv = true;
                                     field.SetValue(row, col, player1.GetFigure());
@@ -403,7 +403,7 @@ class Program
                                     Console.WriteLine("Эта клетка уже занята!");
                                     Console.ResetColor();
                                 }
-                                
+
                             }
                             else
                             {
@@ -441,7 +441,7 @@ class Program
                         bool checkExit2 = false;
                         do // чтобы игрок точно нажал 0
                         {
-                            string input = Console.ReadLine();
+                            string? input = Console.ReadLine();
                             if (int.TryParse(input, out int exit))
                             {
                                 if (exit == 0)
@@ -467,10 +467,10 @@ class Program
                     do // ход второго игрока
                     {
                         Console.WriteLine("0: Выйти в меню");
-                        Console.Write($"{player2.GetName()} введи координаты (Первое число - строка, второе  - столбец): ");
+                        Console.Write($"{player2.GetName()} введи координаты (Первое число - столбец, второе  - строка): ");
 
-                        string input = Console.ReadLine();
-                        string[] inputMasssiv1 = input.Split(" ");
+                        string? input = Console.ReadLine();
+                        string[] inputMasssiv1 = (input ?? "").Split(" ");
                         if (input == "0")
                         {
                             checkExit1 = true;
@@ -478,8 +478,8 @@ class Program
                         }
                         if (inputMasssiv1.Length == 2)
                         {
-                            int row = int.Parse(inputMasssiv1[0]);
-                            int col = int.Parse(inputMasssiv1[1]);
+                            int col = int.Parse(inputMasssiv1[0]);
+                            int row = int.Parse(inputMasssiv1[1]);
                             if (row >= 1 && row <= 15 && col >= 1 && col <= 15)
                             {
                                 if (field.CheckValue(row, col) == false)
@@ -493,7 +493,7 @@ class Program
                                     Console.WriteLine("Эта клетка уже занята!");
                                     Console.ResetColor();
                                 }
-                                
+
                             }
                             else
                             {
@@ -522,7 +522,7 @@ class Program
 
                     field.DisplayField();
 
-                    
+
 
                     if (field.CheckWin(player2.GetFigure()))
                     {
@@ -539,7 +539,7 @@ class Program
                         bool checkExit2 = false;
                         do
                         {
-                            string input = Console.ReadLine();
+                            string? input = Console.ReadLine();
                             if (int.TryParse(input, out int exit))
                             {
                                 if (exit == 0)
@@ -564,10 +564,10 @@ class Program
                     do
                     {
                         Console.WriteLine("0: Выйти в меню");
-                        Console.Write($"{player2.GetName()} введи координаты (Первое число - строка, второе - столбец): ");
+                        Console.Write($"{player2.GetName()} введи координаты (Первое число - столбец, второе - строка): ");
 
-                        string input = Console.ReadLine();
-                        string[] inputMasssiv = input.Split(" ");
+                        string? input = Console.ReadLine();
+                        string[] inputMasssiv = (input ?? "").Split(" ");
                         if (input == "0")
                         {
                             checkExit = true;
@@ -575,8 +575,8 @@ class Program
                         }
                         if (inputMasssiv.Length == 2)
                         {
-                            int row = int.Parse(inputMasssiv[0]);
-                            int col = int.Parse(inputMasssiv[1]);
+                            int col = int.Parse(inputMasssiv[0]);
+                            int row = int.Parse(inputMasssiv[1]);
                             if (row >= 1 && row <= 15 && col >= 1 && col <= 15)
                             {
                                 if (field.CheckValue(row, col) == false)
@@ -590,7 +590,7 @@ class Program
                                     Console.WriteLine("Эта клетка уже занята!");
                                     Console.ResetColor();
                                 }
-                                
+
                             }
                             else
                             {
@@ -598,7 +598,7 @@ class Program
                                 Console.WriteLine("Вы ввели неверный диапазон!");
                                 Console.ResetColor();
                             }
-                           
+
                         }
                         else
                         {
@@ -630,7 +630,7 @@ class Program
                         bool checkExit2 = false;
                         do
                         {
-                            string input = Console.ReadLine();
+                            string? input = Console.ReadLine();
                             if (int.TryParse(input, out int exit))
                             {
                                 if (exit == 0)
@@ -643,7 +643,7 @@ class Program
                         } while (checkExit2 != true);
                         break;
                     }
-                        Console.Clear();
+                    Console.Clear();
                     Console.Write("\x1b[3J"); // баг NET8
 
                     field.DisplayField();
@@ -655,10 +655,10 @@ class Program
                     do
                     {
                         Console.WriteLine("0: Выйти в меню");
-                        Console.Write($"{player1.GetName()} введи координаты (Первое число - строка, второе - столбец): ");
+                        Console.Write($"{player1.GetName()} введи координаты (Первое число - столбец, второе - строка): ");
 
-                        string input = Console.ReadLine();
-                        string[] inputMasssiv = input.Split(" ");
+                        string? input = Console.ReadLine();
+                        string[] inputMasssiv = (input ?? "").Split(" ");
                         if (input == "0")
                         {
                             checkExit1 = true;
@@ -666,8 +666,8 @@ class Program
                         }
                         if (inputMasssiv.Length == 2)
                         {
-                            int row = int.Parse(inputMasssiv[0]);
-                            int col = int.Parse(inputMasssiv[1]);
+                            int col = int.Parse(inputMasssiv[0]);
+                            int row = int.Parse(inputMasssiv[1]);
                             if (row >= 1 && row <= 15 && col >= 1 && col <= 15)
                             {
                                 if (field.CheckValue(row, col) == false)
@@ -688,8 +688,8 @@ class Program
                                 Console.WriteLine("Вы ввели неверный диапазон!");
                                 Console.ResetColor();
                             }
-                            
-                            
+
+
                         }
                         else
                         {
@@ -727,10 +727,10 @@ class Program
                         bool checkExit2 = false;
                         do
                         {
-                            string input = Console.ReadLine();
-                            if(int.TryParse(input, out int exit))
+                            string? input = Console.ReadLine();
+                            if (int.TryParse(input, out int exit))
                             {
-                                if(exit == 0)
+                                if (exit == 0)
                                 {
                                     checkExit2 = true;
                                     Console.Clear();
@@ -741,15 +741,14 @@ class Program
                         break;
                     }
 
-                    
+
 
                 }
-                
+
             }
-            
+
         } while (true);
-        
+
 
     }
 }
-
